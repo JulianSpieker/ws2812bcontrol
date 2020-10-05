@@ -1,0 +1,415 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap');
+:root {
+    --backgroundColorSecondary: #eeeeee;
+    --backgroundColorPrimary: #ffffff;
+    --menuBoxShadow: 0 0 15px 0px #7f7f7f;
+    --textColor: #000000;
+    --blueTextColor: #007BC3;
+    --containerBoxShadow: 0 2px 5px 0 rgba(0,0,0,.3);
+    --sectionElementHeight: 30px
+}
+body {
+    height: 100vh;
+    width: 100vh;
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    --rcBase: 20px;
+    background-color: var(--backgroundColorSecondary);
+    transition: background-color 0.1s ease-in-out;
+    user-select: none;
+}
+*:focus {
+    outline: none;
+}
+#verticalMenu {
+    height: 100vh;
+    width: 0px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: var(--backgroundColorPrimary);
+    color: var(--textColor);
+    box-shadow: none;
+    transition: width 0.3s ease-in-out, background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+    z-index: 10;
+}
+#verticalMenuFake {
+    height: 100vh;
+    width: 76px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    background-color: var(--backgroundColorPrimary);
+    box-shadow: var(--menuBoxShadow);
+    transition: width 0.3s ease-in-out;
+    z-index: 5;
+}
+#menuButton {
+    padding: 10px;
+    width: min-content;
+    cursor: pointer;
+}
+#menuButton div {
+    width: 40px;
+    height: 6px;
+    margin: 8px;
+    border-radius: 3px;
+    background-color: #5f6368;
+}
+.divider {
+    margin: 5px;
+    height: 1px;
+    width: calc(100% - 10px);
+    background-color: darkgrey;
+}
+.menuSettingsButton {
+    margin: 6px 24px ;
+    cursor: pointer;
+    position: relative;
+    left: -200px;
+    transition: width 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out;
+}
+.menuSettingsButton p{
+    margin: 0;
+    font-size: 20px;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+p.selected {
+    color: #007BC3;
+}
+
+#rcContainer {
+    background-color: white;
+    position: absolute;
+    /* left: 18px;
+    top: 86px;
+    margin: auto; */
+    width: fit-content;
+    height: fit-content;    
+    /* box-shadow: calc(var(--rcBase)/4) calc(var(--rcBase)/4) var(--rcBase) calc(var(--rcBase)/4) #7f7f7f; */
+    box-shadow: 4px 4px 10px 0px rgba(0,0,0,.3);
+    padding: calc(var(--rcBase)*1.5) calc(var(--rcBase)/4) calc(var(--rcBase)*1.5) calc(var(--rcBase)/4);
+    border: solid black calc(var(--rcBase)/5);
+    border-radius: calc(var(--rcBase)*0.75);
+}
+
+.rcRow {
+    display: flex;
+    margin: calc(var(--rcBase)/10);
+    flex-wrap: wrap;
+    background-color: lightslategray; 
+    border-radius: calc(var(--rcBase)/4);
+}
+
+#splitRow {
+    background-color: white;
+}
+
+#topRow {
+    border-radius: calc(var(--rcBase)/4) calc(var(--rcBase)/4) 0px 0px;
+    margin: calc(var(--rcBase)/10) calc(var(--rcBase)/10) 0px calc(var(--rcBase)/10);
+}
+
+#middleRow {
+    border-radius: 0px;
+    margin: 0px calc(var(--rcBase)/10) 0px calc(var(--rcBase)/10);
+}
+
+#bottomRow {
+    border-radius: 0px 0px calc(var(--rcBase)/4) calc(var(--rcBase)/4);
+    margin: 0px calc(var(--rcBase)/10) calc(var(--rcBase)/10) calc(var(--rcBase)/10);
+}
+
+#brightnessIndicator {
+    background-color: black;
+    height: calc(var(--rcBase)*4);
+    width: calc(var(--rcBase)*4);
+    border-radius: 40%;
+    margin: calc(var(--rcBase)/10);
+    display: inline-block;
+    text-align: center;
+    line-height: calc(var(--rcBase)*4);
+    vertical-align: middle;
+    font-family: sans-serif;
+    font-size: calc(var(--rcBase)*1.5);
+    position: relative;
+    overflow: hidden;
+}
+#brightnessIndicatorInnnerPart {
+    background-color: white;
+    height: 0%;
+    width: calc(var(--rcBase)*4);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+#brightnessIndicatorText {
+    color: grey;
+    text-align: center;
+    line-height: calc(var(--rcBase)*4);
+    vertical-align: middle;
+    font-family: sans-serif;
+    font-size: calc(var(--rcBase)*1.5);
+    position: relative;
+    margin: 0;
+}
+
+.rcRowSub {
+    display: flex;
+    background-color: lightslategray;
+    border-radius: calc(var(--rcBase)/4);
+}
+.remoteButton {
+    height: calc(var(--rcBase)*4);
+    width: calc(var(--rcBase)*4);
+    border-radius: 40%;
+    margin: calc(var(--rcBase)/5);
+    text-align: center;
+    line-height: calc(var(--rcBase)*4);
+    vertical-align: middle;
+    color: black;
+    font-family: sans-serif;
+    font-size: calc(var(--rcBase)*1.5);
+    cursor: pointer;
+    transition: scale 0.1s ease-in-out;
+}
+.remoteButton:active {
+    transform: scale(0.95,0.95);
+    transition: scale 0.1s ease-in-out;
+}
+#buttonContainer {
+    background-color: var(--backgroundColorPrimary);
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border-radius: 2px;
+    box-shadow: var(--containerBoxShadow);
+}
+.interfaceButton {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    width: fit-content;
+    height: 40px;
+    background-color: #fafafa;
+    border: none;
+    border-radius: 2px;
+    margin: 2px 0px 2px 0px;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,.3);
+    cursor: pointer;
+    transition: scale 0.1s ease-in-out;
+    padding: 8px;
+}
+#buttonContainer button:active {
+    transform: scale(0.95,0.95);
+    transition: scale 0.1s ease-in-out;
+}
+#settingsContainer {
+    background-color: var(--backgroundColorPrimary);
+    position: absolute;
+    /* width: fit-content; */
+    /* height: fit-content; */
+    padding: 10px;
+    border-radius: 2px;
+    /* box-shadow: var(--containerBoxShadow); */
+}
+#sectionsContainer {
+    background-color: var(--backgroundColorPrimary);
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border-radius: 2px;
+    box-shadow: var(--containerBoxShadow);
+}
+#sleepTimerContainer {
+    background-color: var(--backgroundColorPrimary);
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border-radius: 2px;
+    box-shadow: var(--containerBoxShadow);
+}
+#sleepTimerDisplayInput {
+    width: 64px;
+    padding: 5px;
+    height: 30px;
+    cursor: text;
+    text-align: right;
+}
+#sectionsContainer div {
+    display: flex;
+}
+.sectionElement {
+    background-color: white;
+    display: inline-table;
+    border-radius: calc(var(--sectionElementHeight)/4);
+    border: solid black 2px;
+    width: fit-content;
+    padding: 0;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 5px;
+    margin-bottom: 2px;
+    height: var(--sectionElementHeight);
+    font-size: calc(var(--sectionElementHeight)/1.5);
+    /* cursor: pointer; */
+}
+.sectionElement th {
+    text-align: left;
+}
+.sectionElement tr {
+    vertical-align: baseline;
+}
+.sectionElement span {
+    cursor: pointer;
+    transition: ease-in;
+}
+/* .sectionElement {
+    background-color: white;
+    display: inline-flex;
+    border-radius: calc(var(--sectionElementHeight)/4);
+    border: 1px;
+    border-style: solid;
+    border-color: black;
+    width: fit-content;
+    padding: 0;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-right: 5px;
+    margin-bottom: 2px;
+    height: var(--sectionElementHeight);
+    font-size: calc(var(--sectionElementHeight)/1.5);
+    cursor: pointer;
+}
+.sectionElement p {
+    color: black;
+    margin: auto;
+    padding: inherit;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-weight: bold;
+}
+.sectionElement div {
+    background-color: black;
+    color: white;
+    border: inherit;
+    border-radius: inherit;
+    border-style: solid;
+    border-color: white;
+    margin: auto;
+    padding: inherit;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: inherit;
+} */
+@media screen and (orientation: portrait) {
+    #rcContainer {
+        left: 0px;
+        top: 76px;
+    }
+    #verticalMenuFake {
+        display: none;
+    }
+    #buttonContainer {
+        left: 0px;
+        top: 700px;
+    }
+    #sectionsContainer {
+        left: 0px;
+        top: 1200px;
+    }
+    #sleepTimerContainer {
+        left: 0px;
+        top: 900px;
+    }
+}
+@media screen and (orientation: landscape) {
+    #rcContainer {
+        left: 86px;
+        /* top: 18px; */
+    }
+    #verticalMenuFake {
+        display: block;
+    }
+    #buttonContainer {
+        /* top: 18px; */
+        left: 480px;
+    }
+    #settingsContainer {
+        left: 86px;
+    }
+    #sleepTimerContainer {
+        /* top: 18px; */
+        left: 730px;
+    }
+    #sectionsContainer {
+        /* top: 18px; */
+        left: 930px;
+    }
+    #ledStripContainer {
+        left: 480px;
+        top: 180px;
+    }
+}
+h1 {
+    font-size: 20px;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    color: var(--textColor);
+}
+#ledStripContainer {
+    position: absolute;
+    /* left: 500px;
+    top: 180px; */
+    background-color: var(--backgroundColorPrimary);
+    padding: 10px;
+    box-shadow: var(--containerBoxShadow);
+}
+.ledElement {
+    background-color: white;
+    height: 40px;
+    width: 40px;
+    border-radius: 20%;
+    display: inline-block;
+    margin: 1px;
+    /* border-style: solid;
+    border-color: transparent;
+    border-width: 2px; */
+    border: solid black 1px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+.ledElement:active {
+    margin-top: 2px;
+    margin-bottom: 0px;
+    margin-left: 2px;
+    margin-right: 0px;
+}
+.textNode {
+    font-family: 'Open Sans', sans-serif;
+    background-color: white;
+    height: 15px;
+    width: fit-content;
+    position: absolute;
+    border-radius: 2px;
+    line-height: 15px;
+    padding: 0px 2px 0px 2px;
+}
+.idNode {
+    bottom: 0;
+    right: 0;
+}
+
+.sectionIdNode {
+    top: 0;
+    left: 0;
+    font-weight: bold;
+}

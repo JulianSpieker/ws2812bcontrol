@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Web Interface</title>
+    <script src="../frontend.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- <script src="ui.js"></script> -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <p style="position: fixed; top: 0px; right: 0px; margin: 18px; color: var(--textColor); transition: color 0.1s ease-in-out;">v0.1</p>
+    <div id="verticalMenuFake"></div>
+    <div id="verticalMenu" style="user-select: none;">
+        <div id="menuButton" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="menuSettingsButton" id="simpleModeMenu" onclick="menuButton('simpleModeMenu')">
+            <p>Simple Mode</p>
+        </div>
+        <div class="divider"></div>
+        <div class="menuSettingsButton" id="advancedModeMenu" onclick="menuButton('advancedModeMenu')">
+            <p>Advanced Mode</p>
+        </div>
+        <div class="divider"></div>
+        <div class="menuSettingsButton" id="settingsMenu" onclick="menuButton('settingsMenu')">
+            <p>Settings</p>
+        </div>
+        <div class="divider"></div>
+        <div class="menuSettingsButton" id="testMenu" onclick="menuButton('testMenu')">
+            <p>Test</p>
+        </div>
+        <div class="divider"></div>
+        <div class="menuSettingsButton" id="themeMenu" onclick="changeTheme()">
+            <p id="themeText">Dark Theme</p>
+        </div>
+        <div class="divider"></div>
+    </div>
+
+    <div id="rcContainer" class="toggle" style="display: none;">
+        <div class="rcRow" id="splitRow">
+            <div class="rcRowSub" style="margin-right: calc(var(--rcBase)/10);">
+                <div class="remoteButton" onclick="increaseBrightness()" style="background-color: white;"><img src="http://192.168.2.101/ledController/increaseBrightness.svg"></div>
+                <div class="remoteButton" onclick="decreaseBrightness()" style="background-color: white; margin-right: calc((var(--rcBase)/10)*1.5);"><img src="http://192.168.2.101/ledController/decreaseBrightness.svg"></div>
+            </div>
+            
+            <div class="rcRowSub">
+                <div class="remoteButton" onclick="on(false)" style="background-color: black; color: white; margin-left: calc((var(--rcBase)/10)*1.5);">OFF</div>
+                <div class="remoteButton" onclick="on(true)" style="background-color: red; color: white;">ON</div>
+            </div>
+        </div>
+        <div class="rcRow" id="topRow">
+            <div class="remoteButton" onclick="setColorFromButton(255,0,0)" style="background-color: rgb(255, 0, 0); color: black;">R</div>
+            <div class="remoteButton" onclick="setColorFromButton(0,255,0)" style="background-color: rgb(0, 255, 0); color: black;">G</div>
+            <div class="remoteButton" onclick="setColorFromButton(0,0,255)" style="background-color: rgb(0, 0, 255); color: white;">B</div>
+            <div class="remoteButton" onclick="setColorFromButton(255,255,255)" style="background-color: white">W</div>
+        </div>
+        <div class="rcRow" id="middleRow">
+            <div class="remoteButton" onclick="setColorFromButton(255,85,0)" style="background-color: rgb(255, 85, 0)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(0,255,85)" style="background-color: rgb(0, 255, 85)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(85,0,255)" style="background-color: rgb(85, 0, 255)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(0,0,0)" style="background-color: black; color: white">B</div>
+        </div>
+        <div class="rcRow" id="middleRow">
+            <div class="remoteButton" onclick="setColorFromButton(255,170,0)" style="background-color: rgb(255, 170, 0)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(0,255,170)" style="background-color: rgb(0, 255, 170)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(170,0,255)" style="background-color: rgb(170, 0, 255)"></div>
+            <div id="brightnessIndicator">
+                <div id="brightnessIndicatorInnnerPart"></div>
+                <p id="brightnessIndicatorText"></p>
+            </div>
+        </div>
+        <div class="rcRow" id="middleRow">
+            <div class="remoteButton" onclick="setColorFromButton(255,255,0)" style="background-color: rgb(255, 255, 0)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(0,255,255)" style="background-color: rgb(0, 255, 255)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(255,0,255)" style="background-color: rgb(255, 0, 255)"></div>
+        </div>
+        <div class="rcRow" id="bottomRow">
+            <div class="remoteButton" onclick="setColorFromButton(170,255,0)" style="background-color: rgb(170, 255, 0)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(0,170,255)" style="background-color: rgb(0, 170, 255)"></div>
+            <div class="remoteButton" onclick="setColorFromButton(255,0,170)" style="background-color: rgb(255, 0, 170)"></div>
+        </div>
+    </div>
+    <div>
+        <div id="buttonContainer" class="toggle" style="display: none;">
+            <h1>Functions</h1>
+            <button class="interfaceButton" onclick="initiateNewSectionSelection()">NEW SECTION</button>
+            <br>
+            <button class="interfaceButton" onclick="assignFunction('flash')">FLASH</button>
+            <button class="interfaceButton" onclick="assignFunction('fade')">FADE</button>
+            <button class="interfaceButton" onclick="assignFunction('rainbow')">RAINBOW</button>
+        </div>
+        <div id="sectionsContainer" class="toggle" style="display: none;">
+            <h1>Sections</h1>
+        </div>
+        <div id="sleepTimerContainer" class="toggle" style="display: none;">
+            <h1>Sleep Timer</h1>
+            <button id="sleepTimerStartButton" class="interfaceButton" onclick="sleepTimer('start')">Start</button>
+            <button id="sleepTimerStopButton" class="interfaceButton" onclick="sleepTimer('stop')">Stop</button>
+            <button id="sleepTimerResetButton" class="interfaceButton" onclick="sleepTimer('reset')">Reset</button>
+            <br>
+            <div onclick="sleepTimer('displayPress')" id="sleepTimerDisplayButton" title="Click to change">
+                <input id="sleepTimerDisplayInput" class="interfaceButton" type="text" value="1:00:00" style="padding: 5px;">
+            </div>
+
+        </div>
+    </div>
+    <div id="ledStripContainer" class="toggle" style="display: none;"></div>
+    <div id="settingsContainer" class="toggle" style="display: none;">
+        <h1>Settings</h1>
+        <form id="settingsForm">
+            <label for="startupMode">Startup mode</label>
+            <select name="startupMode" id="startupMode">
+                <optgroup label="Simple">
+                    <option value="default">Default</option>
+                </optgroup>
+                <optgroup label="Animated">
+                    <option value="swipe">Swipe</option>
+                    <option value="fade">Fade</option>
+                </optgroup>
+            </select>
+            <br>
+            <label for="swipeSpeed">Swipe Speed (LED/s)</label>
+            <input name="swipeSpeed" id="swipeSpeed" type="number" min="1" max="60" value="30">
+        </form>
+        <button onclick="saveSettings()">Save</button>
+    </div>
+</body>
+</html>
