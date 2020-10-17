@@ -1,3 +1,4 @@
+# from __future__ import division
 from bottle import run, route, request, response
 from threading import Thread
 from neopixel import *
@@ -7,7 +8,7 @@ import json
 import string
 import subprocess
 # LED strip configuration:
-LED_COUNT      = 210      # Number of LED pixels.
+LED_COUNT      = 150      # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
@@ -19,8 +20,10 @@ LED_STRIP      = ws.WS2812_STRIP
 # management variables
 sections = None
 settings = {
-    "startupMode": "default",
-    "swipeSpeed": 30
+    "brightnessChangeMode": "default",
+    "colorChangeMode": "swipe",
+    "fadeDuration": 300,
+    "swipeSpeed": 50
 }
 if not sections:
     print "no sections loaded"
@@ -35,6 +38,9 @@ if not sections:
 activeThreads = {}
 # global brightness_percent
 brightness_percent = 80
+brightness = 204
+previousBrightness = brightness
+savedBrightness = brightness
 timerSeconds = 0
 timerActive = False
 def runBottle():
@@ -185,7 +191,10 @@ def runBottle():
         print 'setSettings() called, received', request.content_type
         receivedJSON = request.json
         if receivedJSON:
-            print receivedJSON
+            for x in receivedJSON:
+                settings[x] = receivedJSON[x]
+            print settings
+        return settings
 
     @route('/assignFunction', method=['OPTIONS', 'POST'])
     def assignFunction():
@@ -222,9 +231,22 @@ def runBottle():
         receivedJSON = request.json
         if receivedJSON:
             print receivedJSON
-            for i in range(LED_COUNT):
-                strip.setPixelColorRGB(i, *receivedJSON["setColorSimple"])
-            strip.show()
+            fillColorRGB(0, LED_COUNT, *receivedJSON["setColorSimple"])            
+        return {"success": True}
+
+    @route('/setColorGradient', method=['OPTIONS', 'POST'])
+    def setColorGradient():
+        response.content_type = 'application/json'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+        print 'setColorGradient() called, received', request.content_type
+        receivedJSON = request.json
+        if receivedJSON:
+            print receivedJSON
+            # fillColorRGB(0, LED_COUNT, *receivedJSON["setColorGradient"][0])
+            print receivedJSON["setColorGradient"]
+            fillGradientColorRGB(0, LED_COUNT, receivedJSON["setColorGradient"])          
         return {"success": True}
 
     @route('/setBrightness', method=['OPTIONS', 'POST'])
@@ -238,12 +260,15 @@ def runBottle():
         if receivedJSON:
             print receivedJSON
             global brightness_percent 
+            global brightness
+            global previousBrightness
             brightness_percent = float(receivedJSON['brightness'])
             brightness = int(brightness_percent/100*255)
+            if brightness > 255:
+                brightness = 255
             print brightness_percent
             print brightness
-            strip.setBrightness(brightness)
-            strip.show()
+            brightnessSet()
             return {"brightness": brightness}
 
     @route('/getBrightness', method=['OPTIONS', 'GET'])
@@ -263,14 +288,20 @@ def runBottle():
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
         receivedJSON = request.json
         if receivedJSON:
+            global brightness
+            global previousBrightness
+            global savedBrightness
+            global brightness_percent
             if receivedJSON['on']:
-                strip.setBrightness(LED_BRIGHTNESS)
-                print LED_BRIGHTNESS
-                strip.show()
+                brightness = savedBrightness
+                brightnessSet()
+                brightness_percent = int(brightness/255)
                 return {'on': True}
             else:
-                strip.setBrightness(0)
-                strip.show()
+                savedBrightness = brightness
+                brightness = 0
+                brightness_percent = 0
+                brightnessSet()
                 return {'on': False}
 
     @route('/sleepTimer', method=['OPTIONS', 'POST'])
@@ -307,6 +338,37 @@ def runBottle():
         
     run(host='0.0.0.0',port=8080,debug=True)
 
+def brightnessSet():
+    global previousBrightness
+    global brightness
+    print "change from",previousBrightness,"to",brightness
+    print "mode:", settings["brightnessChangeMode"]
+    if settings["brightnessChangeMode"] == "fade":
+        duration = float(settings["fadeDuration"])/1000
+        if brightness >= previousBrightness:
+            steps = brightness - previousBrightness
+            if steps > 0:
+                interval = duration/steps 
+                for i in range(2,steps):
+                    strip.setBrightness(previousBrightness + i-1)
+                    if i%2 == 0:
+                        strip.show()
+                    time.sleep(interval)                    
+        if brightness <= previousBrightness:
+            steps = previousBrightness - brightness
+            if steps > 0:
+                interval = duration/steps 
+                for i in range(2,steps):
+                    strip.setBrightness(previousBrightness - i-1)
+                    if i%2 == 0:
+                        strip.show()
+                    time.sleep(interval)
+        strip.show()
+        previousBrightness = brightness
+    else:
+        strip.setBrightness(brightness)
+        strip.show()
+
 def exportData(data,filename):
     try:
         with open(filename,'w') as file:
@@ -327,12 +389,77 @@ def staticLedFunction(arguments):
     parameters = arguments['arguments']
     begin, end = sections[str(sectionId)]['begin'], sections[str(sectionId)]['end']
     if functionName == 'singleColor':
-        print 'singleColor', begin, end
-        for i in range(begin, end+1):
-            strip.setPixelColorRGB(i, *parameters)
-        strip.show()
+        fillColorRGB(begin, end, *parameters)
+    elif functionName == 'gradientColor':
+        fillGradientColorRGB(begin, end, parameters)
     else:
         print 'function', functionName, 'is not known'
+
+def fillColorRGB(begin, end, r, g, b):
+    print 'singleColor', begin, end
+    if settings["colorChangeMode"] == "swipe":
+        interval = 1.0/int(settings["swipeSpeed"])
+        print interval
+        start = time.time()
+        for i in range(begin, end):
+            strip.setPixelColorRGB(i, r, g, b)
+            if i%2 == 0:
+                strip.show()
+            time.sleep(interval)
+        end = time.time()
+        print "time elapsed:", end-start
+    elif settings["colorChangeMode"] == "fade":
+        prevColors = []
+        for i in range(begin, end):
+            RGBint = strip.getPixelColor(i)
+            prevColors.append([RGBint & 255, (RGBint >> 8) & 255, (RGBint >> 16) & 255])
+        print len(prevColors)
+        # transition from prev colors to current colors
+    else:
+        for i in range(begin, end):
+            strip.setPixelColorRGB(i, r, g, b)
+        strip.show()
+
+def fillGradientColorRGB(begin, end, gradient):
+    target = {}
+    r1 = gradient[0][0]
+    g1 = gradient[0][1]
+    b1 = gradient[0][2]
+    r2 = gradient[1][0]
+    g2 = gradient[1][1]
+    b2 = gradient[1][2]
+    print begin, end
+    for i in range(end-begin+1):
+        target[begin+i] = [
+            r1 + (r2-r1) * i / (end-begin+1),
+            g1 + (g2-g1) * i / (end-begin+1),
+            b1 + (b2-b1) * i / (end-begin+1)
+        ]
+
+    if settings["colorChangeMode"] == "swipe":
+        interval = 1.0/int(settings["swipeSpeed"])
+        print interval
+        start = time.time()
+        for i in range(end-begin+1):
+            print begin+i, target[begin+i]
+            strip.setPixelColorRGB(begin+i, *target[begin+i])
+            if i%2 == 0:
+                strip.show()
+            time.sleep(interval)
+        end = time.time()
+        strip.show()
+        print "time elapsed:", end-start
+    elif settings["colorChangeMode"] == "fade":
+        prevColors = []
+        for i in range(end-begin+1):
+            RGBint = strip.getPixelColorRGB(begin+i, *target[i])
+            prevColors.append([RGBint & 255, (RGBint >> 8) & 255, (RGBint >> 16) & 255])
+        print len(prevColors)
+        # transition from prev colors to current colors
+    else:
+        for i in range(begin, end):
+            strip.setPixelColorRGB(i, *target[i])
+        strip.show()
 
 class dynamicLedFunction(Thread):
     def __init__(self, arguments):
@@ -417,14 +544,17 @@ class timerBackgroundThread(object):
     def run(self):
         global timerSeconds
         global timerActive
+        global savedBrightness
+        global brightness
         while True:
             while timerActive:
                 timerSeconds -= 1
                 print timerSeconds
                 if timerSeconds < 1:
                     timerActive = False
-                    strip.setBrightness(0)
-                    strip.show()
+                    savedBrightness = brightness
+                    brightness = 0
+                    brightnessSet()
                 time.sleep(1)
 
 if __name__ == "__main__":

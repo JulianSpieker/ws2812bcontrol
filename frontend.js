@@ -3,6 +3,7 @@ var sections;
 var settings;
 var timerSet = false;
 var seconds;
+var ip = '192.168.2.144';
 document.addEventListener('DOMContentLoaded',
 async function() {
     advancedMode = (getCookie('advancedMode') == 'true');
@@ -21,7 +22,7 @@ async function() {
     ledCountJson = await XHRget('getLedCount');
     brightnessJson = await XHRget('getBrightness');
     settings = await XHRget('getSettings');
-    const ledCount = ledCountJson['ledCount'];
+    var ledCount = ledCountJson['ledCount'];
     brightness = brightnessJson['brightness'];
     sleepTimerStatus = await XHRget('getSleepTimer');
     sleepTimerStatus["active"];
@@ -101,20 +102,25 @@ function getCookie(cname) {
     return "";
 }
 
-function saveSettings() {
+async function saveSettings() {
     var formElements = document.getElementById("settingsForm").elements;
     // let settings = {}
     for (var i = 0; i < formElements.length; i++) {
         settings[formElements[i].name] = formElements[i].value;
-        console.log(settings);
     }
-    setSettings();
+    console.log(settings);
+    response = await setSettings();
+    console.log(response);
+    if (response["brightnessChangeMode"]) {
+        alert("Settings saved!");
+    }
 }
 
 async function setSettings() {
     console.log('Sending content:\n', settings);
     response = await XHRpost('setSettings', JSON.stringify(settings));
     console.log(response);
+    return response;
 }
 
 function updateSectionContainer() {
@@ -184,7 +190,7 @@ function updateSectionContainer() {
 function XHRpost(endpoint, content) {
     let xhr = new XMLHttpRequest();
     return new Promise(function (resolve, reject) {
-        xhr.open('POST', 'http://192.168.2.144:8080/'+endpoint, true);
+        xhr.open('POST', 'http://'+ip+':8080/'+endpoint, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.responseType = 'json';
         xhr.onload = function () {
@@ -205,7 +211,7 @@ function XHRpost(endpoint, content) {
 function XHRget(endpoint) {
     let xhr = new XMLHttpRequest();
     return new Promise(function (resolve, reject) {
-    xhr.open('GET', 'http://192.168.2.144:8080/'+endpoint, true);
+    xhr.open('GET', 'http://'+ip+':8080/'+endpoint, true);
     xhr.responseType = 'json';
     xhr.onload = function () {
         console.log('XHRget', endpoint, xhr.status);
@@ -263,43 +269,91 @@ async function assignFunction(functionName) {
 }
 
 async function setColorFromButton(r, g, b) {
-    if (!advancedMode) {
-        let content = {"setColorSimple": [r, g, b]};
-        await XHRpost('setColorSimple', JSON.stringify(content));
-        // TODO
-        // visual color representation
-        for (var x=0; x<ledCount; x++) {
-            backgroundColor = 'rgb('+r+','+g+','+b+')';
-            document.getElementById('led'+x).style.backgroundColor = backgroundColor
-        }
-    } else {
-        if (sectionAssignmentStatus === 1 && sectionAssignmentSectionIds != null) {
-            // console.log('assigning single color to section', sectionAssignmentSectionIds);
-            let content = [];
-            for (id in sectionAssignmentSectionIds) {
-                if (sections[id]) { //check if section mentioned in sectionAssignmentID still exists
-                    if (sectionAssignmentSectionIds[id]) {
-                        console.log('assigning single color',r,g,b,'to section', id);
-                        functionAssignment = {
-                            'section': id,
-                            'functionType': 'static',
-                            'functionName': 'singleColor',
-                            'arguments': [r, g, b]
-                        };
-                        content.push(functionAssignment);
+    switch (colorGradientSelection) {
+        case 1:
+            colorGradientSelectionValues.push([r, g, b]);
+            document.getElementById('gradientComboButtonLeft').style.backgroundColor = 'rgb('+r+','+g+','+b+')'
+            colorGradientSelection = 2; //starts phase 2, next setColorFromButton is the final color for the color gradient
+            break;
+        case 2:
+            colorGradientSelectionValues.push([r, g, b]);
+            document.getElementById('gradientComboButtonRight').style.backgroundColor = 'rgb('+r+','+g+','+b+')'
+            if (!advancedMode) {
+                let content = {"setColorGradient": colorGradientSelectionValues};
+                await XHRpost("setColorGradient", JSON.stringify(content));
+                colorGradientSelectionValues = []
+                // TODO visual
+            } else {
+                if (sectionAssignmentStatus === 1 && sectionAssignmentSectionIds != null) {
+                    // console.log('assigning single color to section', sectionAssignmentSectionIds);
+                    let content = [];
+                    for (id in sectionAssignmentSectionIds) {
+                        if (sections[id]) { //check if section mentioned in sectionAssignmentID still exists
+                            if (sectionAssignmentSectionIds[id]) {
+                                console.log('assigning gradient color from',sectionAssignmentSectionIds[0],'to', sectionAssignmentSectionIds[1],' section', id);
+                                functionAssignment = {
+                                    'section': id,
+                                    'functionType': 'static',
+                                    'functionName': 'gradientColor',
+                                    'arguments': colorGradientSelectionValues
+                                };
+                                content.push(functionAssignment);
+                            }
+                        } else {
+                            console.log("section",id,"doesn't exist anymore");
+                            delete sectionAssignmentSectionIds[id]
+                        }
                     }
-                } else {
-                    console.log("section",id,"doesn't exist anymore");
-                    delete sectionAssignmentSectionIds[id]
+                    if (content.length > 0) {
+                        response = await XHRpost('assignFunction', JSON.stringify(content));
+                        console.log(response);
+                    } else {
+                        console.log("No section selected");
+                    }
+                    colorGradientSelectionValues = [];
+                    colorGradientSelection = 0;
                 }
             }
-            if (content.length > 0) {
-                response = await XHRpost('assignFunction', JSON.stringify(content));
-                console.log(response);
+            break;
+        default:
+            if (!advancedMode) {
+                let content = {"setColorSimple": [r, g, b]};
+                await XHRpost('setColorSimple', JSON.stringify(content));
+                // TODO
+                // visual color representation
+                // for (var x=0; x<ledCount; x++) {
+                //     backgroundColor = 'rgb('+r+','+g+','+b+')';
+                //     document.getElementById('led'+x).style.backgroundColor = backgroundColor
+                // }
             } else {
-                console.log("No section selected");
+                if (sectionAssignmentStatus === 1 && sectionAssignmentSectionIds != null) {
+                    // console.log('assigning single color to section', sectionAssignmentSectionIds);
+                    let content = [];
+                    for (id in sectionAssignmentSectionIds) {
+                        if (sections[id]) { //check if section mentioned in sectionAssignmentID still exists
+                            if (sectionAssignmentSectionIds[id]) {
+                                console.log('assigning single color',r,g,b,'to section', id);
+                                functionAssignment = {
+                                    'section': id,
+                                    'functionType': 'static',
+                                    'functionName': 'singleColor',
+                                    'arguments': [r, g, b]
+                                };
+                                content.push(functionAssignment);
+                            }
+                        } else {
+                            console.log("section",id,"doesn't exist anymore");
+                            delete sectionAssignmentSectionIds[id]
+                        }
+                    }
+                    if (content.length > 0) {
+                        response = await XHRpost('assignFunction', JSON.stringify(content));
+                        console.log(response);
+                    } else {
+                        console.log("No section selected");
+                    }
+                }
             }
-        }
     }
 }
 
@@ -345,6 +399,8 @@ async function increaseBrightness() {
         brightness += 5; //increment by 5 if between 5 and 20
     } else if (brightness < 100) {
         brightness += 20; 
+    } else if (brightness > 100) {
+        brightness = 100;
     }
     response = await XHRpost('setBrightness', JSON.stringify({brightness: brightness}))
     setBrightnessIndicator(brightness);
@@ -369,7 +425,20 @@ function setBrightnessIndicator(brightness) {
 
 async function on(on) {
     response = await XHRpost('powerState', JSON.stringify({'on': on}))
+    if (on === true) {
+        setBrightnessIndicator(brightness);
+    } else if (on === false) {
+        setBrightnessIndicator(0);
+    }
     console.log(response);
+}
+
+var colorGradientSelection = 0;
+var colorGradientSelectionValues = [];
+function startColorGradientSelection() {
+    colorGradientSelection = 1; //starts gradient color selection process, next setColorFromButton is the initial color for colorGradient
+    document.getElementById('gradientComboButtonLeft').style.backgroundColor = 'lightgrey'
+    document.getElementById('gradientComboButtonRight').style.backgroundColor = 'lightgrey'
 }
 
 //UI

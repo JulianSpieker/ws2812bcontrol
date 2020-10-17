@@ -78,6 +78,12 @@
             <div class="remoteButton" onclick="setColorFromButton(255,255,0)" style="background-color: rgb(255, 255, 0)"></div>
             <div class="remoteButton" onclick="setColorFromButton(0,255,255)" style="background-color: rgb(0, 255, 255)"></div>
             <div class="remoteButton" onclick="setColorFromButton(255,0,255)" style="background-color: rgb(255, 0, 255)"></div>
+            <div id="gradientComboButton" onclick="startColorGradientSelection()">
+                <p>GRAD.</p>
+                <br>
+                <div id="gradientComboButtonLeft"></div>
+                <div id="gradientComboButtonRight"></div>
+            </div>
         </div>
         <div class="rcRow" id="bottomRow">
             <div class="remoteButton" onclick="setColorFromButton(170,255,0)" style="background-color: rgb(170, 255, 0)"></div>
@@ -90,9 +96,9 @@
             <h1>Functions</h1>
             <button class="interfaceButton" onclick="initiateNewSectionSelection()">NEW SECTION</button>
             <br>
-            <button class="interfaceButton" onclick="assignFunction('flash')">FLASH</button>
+            <!-- <button class="interfaceButton" onclick="assignFunction('flash')">FLASH</button>
             <button class="interfaceButton" onclick="assignFunction('fade')">FADE</button>
-            <button class="interfaceButton" onclick="assignFunction('rainbow')">RAINBOW</button>
+            <button class="interfaceButton" onclick="assignFunction('rainbow')">RAINBOW</button> -->
         </div>
         <div id="sectionsContainer" class="toggle" style="display: none;">
             <h1>Sections</h1>
@@ -113,8 +119,8 @@
     <div id="settingsContainer" class="toggle" style="display: none;">
         <h1>Settings</h1>
         <form id="settingsForm">
-            <label for="startupMode">Startup mode</label>
-            <select name="startupMode" id="startupMode">
+            <label for="brightnessChangeMode">Brightness change mode</label>
+            <select name="brightnessChangeMode" id="brightnessChangeMode">
                 <optgroup label="Simple">
                     <option value="default">Default</option>
                 </optgroup>
@@ -123,6 +129,20 @@
                     <option value="fade">Fade</option>
                 </optgroup>
             </select>
+            <br>
+            <label for="colorChangeMode">Color change mode</label>
+            <select name="colorChangeMode" id="colorChangeMode">
+                <optgroup label="Simple">
+                    <option value="default">Default</option>
+                </optgroup>
+                <optgroup label="Animated">
+                    <option value="swipe">Swipe</option>
+                    <option value="fade">Fade</option>
+                </optgroup>
+            </select>
+            <br>
+            <label for="fadeDuration">Fade duration (ms)</label>
+            <input name="fadeDuration" id="fadeDuration" type="number" min="100" max="5000" value="300">
             <br>
             <label for="swipeSpeed">Swipe Speed (LED/s)</label>
             <input name="swipeSpeed" id="swipeSpeed" type="number" min="1" max="60" value="30">

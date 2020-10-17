@@ -158,6 +158,51 @@ p.selected {
     margin: 0;
 }
 
+#gradientComboButton {
+    background-color: black;
+    height: calc(var(--rcBase)*4);
+    width: calc(var(--rcBase)*4);
+    border-radius: 40%;
+    margin: calc(var(--rcBase)/10);
+    display: inline-block;
+    text-align: center;
+    line-height: calc(var(--rcBase)*4);
+    vertical-align: middle;
+    font-family: sans-serif;
+    font-size: calc(var(--rcBase)*1.5);
+    position: relative;
+    overflow: hidden;
+}
+#gradientComboButton p {
+    font-size: var(--rcBase);
+    color: white;
+    position: absolute;
+    width: calc(var(--rcBase)*4);
+    height: calc(var(--rcBase)*2);
+    margin: 0;
+    text-align: center;
+    line-height: calc(var(--rcBase)*2.5);
+    vertical-align: middle;
+}
+#gradientComboButtonLeft {
+    height: var(--rcBase);
+    width: var(--rcBase);
+    position: absolute;
+    bottom: calc(var(--rcBase)/1.5);
+    left: calc(var(--rcBase)/1.5);
+    background-color: white;
+    border: lightgrey 2px solid;
+}
+#gradientComboButtonRight {
+    height: var(--rcBase);
+    width: var(--rcBase);
+    position: absolute;
+    bottom: calc(var(--rcBase)/1.5);
+    right: calc(var(--rcBase)/1.5);
+    background-color: white;
+    border: lightgrey 2px solid;
+}
+
 .rcRowSub {
     display: flex;
     background-color: lightslategray;
