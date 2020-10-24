@@ -109,6 +109,7 @@ async function saveSettings() {
         settings[formElements[i].name] = formElements[i].value;
     }
     console.log(settings);
+    ip = settings["ipAdress"];
     response = await setSettings();
     console.log(response);
     if (response["brightnessChangeMode"]) {

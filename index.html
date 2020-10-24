@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <p style="position: fixed; top: 0px; right: 0px; margin: 18px; color: var(--textColor); transition: color 0.1s ease-in-out;">v0.1</p>
+    <p style="position: fixed; top: 0px; right: 0px; margin: 18px; color: var(--textColor); transition: color 0.1s ease-in-out;">v0.2</p>
     <div id="verticalMenuFake"></div>
     <div id="verticalMenu" style="user-select: none;">
         <div id="menuButton" onclick="toggleMenu()">
@@ -44,8 +44,8 @@
     <div id="rcContainer" class="toggle" style="display: none;">
         <div class="rcRow" id="splitRow">
             <div class="rcRowSub" style="margin-right: calc(var(--rcBase)/10);">
-                <div class="remoteButton" onclick="increaseBrightness()" style="background-color: white;"><img src="http://192.168.2.101/ledController/increaseBrightness.svg"></div>
-                <div class="remoteButton" onclick="decreaseBrightness()" style="background-color: white; margin-right: calc((var(--rcBase)/10)*1.5);"><img src="http://192.168.2.101/ledController/decreaseBrightness.svg"></div>
+                <div class="remoteButton" onclick="increaseBrightness()" style="background-color: white;"><img src="increaseBrightness.svg"></div>
+                <div class="remoteButton" onclick="decreaseBrightness()" style="background-color: white; margin-right: calc((var(--rcBase)/10)*1.5);"><img src="decreaseBrightness.svg"></div>
             </div>
             
             <div class="rcRowSub">
@@ -146,6 +146,8 @@
             <br>
             <label for="swipeSpeed">Swipe Speed (LED/s)</label>
             <input name="swipeSpeed" id="swipeSpeed" type="number" min="1" max="60" value="30">
+            <label for="ipAdress">IP Adress</label>
+            <input name="ipAdress" id="ipAdress" type="text">
         </form>
         <button onclick="saveSettings()">Save</button>
     </div>
