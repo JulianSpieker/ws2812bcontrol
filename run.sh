@@ -25,7 +25,7 @@ case "$1" in
 		sudo wget -O /var/www/html/frontend.js https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/frontend.js
 		sudo wget -O /var/www/html/style.css https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/style.css
 		sudo wget -O /var/www/html/increaseBrightness.svg https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/increaseBrightness.svg
-		sudo wget -O /var/www/html/decreaseBrightness.svg https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/brightnessDecrease.svg
+		sudo wget -O /var/www/html/decreaseBrightness.svg https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/decreaseBrightness.svg
 		sudo wget -O /home/pi/backend.py https://raw.githubusercontent.com/JulianSpieker/ws2812bcontrol/main/backend.py
 		echo "Server wird gestartet"
 		tmux new -d -s ${name} "sudo python backend.py"
