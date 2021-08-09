@@ -26,7 +26,7 @@ settings = {
     "swipeSpeed": 50
 }
 if not sections:
-    print "no sections loaded"
+    print("no sections loaded")
     sections = {
         '0': {
             'begin': 0,
@@ -50,17 +50,17 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'setSection() called, received', request.content_type
+        print('setSection() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
             newSectionBegin, newSectionEnd = receivedJSON['newSection']
-            print newSectionBegin, newSectionEnd
+            print(newSectionBegin, newSectionEnd)
             deleteAfterIteration = []
             sectionsToAdd = []
             # collision detection
             for name in sections:
-                print 'old:', sections[name]['uid'], sections[name]['begin'], '-', str(sections[name]['end'])+'; new:', newSectionBegin, '-', newSectionEnd
-                # print type(sections[name]['begin']), type(sections[name]['end']), type(newSectionBegin), type(newSectionEnd)
+                print('old:', sections[name]['uid'], sections[name]['begin'], '-', str(sections[name]['end'])+'; new:', newSectionBegin, '-', newSectionEnd)
+                # print(type(sections[name]['begin']), type(sections[name]['end']), type(newSectionBegin), type(newSectionEnd))
                 if newSectionBegin == sections[name]['begin']: # begin is the same
                     if newSectionEnd == sections[name]['end']: # sections are identical
                         deleteAfterIteration.append(name)
@@ -69,7 +69,7 @@ def runBottle():
                     elif newSectionEnd > sections[name]['end']: # existing section will be removed
                         deleteAfterIteration.append(name)
                     else:
-                        print 'this should not happen (newSectionBegin == sections[name][\'begin\'])'
+                        print('this should not happen (newSectionBegin == sections[name][\'begin\'])')
                 elif newSectionEnd == sections[name]['end']: # end is the same
                     if newSectionBegin == sections[name]['begin']: # sections are identical
                         deleteAfterIteration.append(name)
@@ -78,7 +78,7 @@ def runBottle():
                     elif newSectionBegin < sections[name]['begin']: # existing section will be removed
                         deleteAfterIteration.append(name)
                     else:
-                        print 'this should not happen (newSectionEnd == sections[name][\'end\'])'
+                        print('this should not happen (newSectionEnd == sections[name][\'end\'])')
                 elif newSectionBegin < sections[name]['begin']: # if new section begins before existing section begins
                     if newSectionEnd < sections[name]['begin']: # if new section also ends before before existing section begins
                         continue
@@ -87,7 +87,7 @@ def runBottle():
                     elif newSectionEnd >= sections[name]['begin']: # if new section only cuts into existing section, truncate existing section
                         sections[name]['begin'] = newSectionEnd+1
                     else:
-                        print 'this should not happen (newSectionBegin < sections[name][\'begin\'])'
+                        print('this should not happen (newSectionBegin < sections[name][\'begin\'])')
                 elif newSectionBegin > sections[name]['begin']: # if new section begins after existing section begins
                     if newSectionBegin > sections[name]['end']: # if new section only begins after existing section ends
                         continue
@@ -103,9 +103,9 @@ def runBottle():
                         })
                         sections[name]['end'] = newSectionBegin-1
                     else:
-                        print 'this should not happen (newSectionBegin > sections[name][\'begin\'])'
+                        print('this should not happen (newSectionBegin > sections[name][\'begin\'])')
                 else:
-                    print 'this should not happen at all!'
+                    print('this should not happen at all!')
                     
             uid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             sectionsToAdd.append({
@@ -116,13 +116,13 @@ def runBottle():
             }) # finally add new section after all existing sections have been built around it
             clearNewSection(newSectionBegin, newSectionEnd)
             for key in deleteAfterIteration:
-                print 'deleting sections["'+key+'"]'
+                print('deleting sections["'+key+'"]')
                 if key in activeThreads:
-                    print 'active threads:', activeThreads
-                    print 'stopping thread for', key
+                    print('active threads:', activeThreads)
+                    print('stopping thread for', key)
                     # activeThreads[key].stop()
                 del sections[key]
-            print 'active threads:', activeThreads
+            print('active threads:', activeThreads)
             deleteAfterIteration = [] # reset
 
             for section in sectionsToAdd:
@@ -140,10 +140,10 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'removeSection() called, received', request.content_type
+        print('removeSection() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
-            print sections[str(receivedJSON['deleteSection'])]
+            print(sections[str(receivedJSON['deleteSection'])])
             clearNewSection(sections[str(receivedJSON['deleteSection'])]['begin'], sections[str(receivedJSON['deleteSection'])]['end'])
             del sections[str(receivedJSON['deleteSection'])]
             exportData(sections, 'sections.json')
@@ -172,7 +172,7 @@ def runBottle():
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
         cpuTemp = float(subprocess.check_output(['cat','/sys/class/thermal/thermal_zone0/temp'])[:-1])/1000
-        print cpuTemp
+        print(cpuTemp)
         return {'cpuTemp': cpuTemp}
     
     @route('/getSettings', method=['OPTIONS', 'GET'])
@@ -188,12 +188,12 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'setSettings() called, received', request.content_type
+        print('setSettings() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
             for x in receivedJSON:
                 settings[x] = receivedJSON[x]
-            print settings
+            print(settings)
         return settings
 
     @route('/assignFunction', method=['OPTIONS', 'POST'])
@@ -202,13 +202,13 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'assignFunction() called, received', request.content_type
+        print('assignFunction() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
             if len(receivedJSON)>1:
-                print "more than one function assignment at a time"
+                print("more than one function assignment at a time")
             for functionAssignment in receivedJSON:
-                print "functionAssignment", functionAssignment
+                print("functionAssignment", functionAssignment)
                 if functionAssignment['functionType'] == 'dynamic':
                     ledFunctionThread = dynamicLedFunction(functionAssignment)
                     ledFunctionThread.setDaemon(True)
@@ -217,7 +217,7 @@ def runBottle():
                 elif functionAssignment['functionType'] == 'static':
                     staticLedFunction(functionAssignment)
                 else:
-                    print 'something went wrong'
+                    print('something went wrong')
                     return {"success": False}
             return {"success": True}
 
@@ -227,10 +227,10 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'setColorSimple() called, received', request.content_type
+        print('setColorSimple() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
-            print receivedJSON
+            print(receivedJSON)
             fillColorRGB(0, LED_COUNT, *receivedJSON["setColorSimple"])            
         return {"success": True}
 
@@ -240,12 +240,12 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'setColorGradient() called, received', request.content_type
+        print('setColorGradient() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
-            print receivedJSON
+            print(receivedJSON)
             # fillColorRGB(0, LED_COUNT, *receivedJSON["setColorGradient"][0])
-            print receivedJSON["setColorGradient"]
+            print(receivedJSON["setColorGradient"])
             fillGradientColorRGB(0, LED_COUNT, receivedJSON["setColorGradient"])          
         return {"success": True}
 
@@ -255,10 +255,10 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print 'setBrightness() called, received', request.content_type
+        print('setBrightness() called, received', request.content_type)
         receivedJSON = request.json
         if receivedJSON:
-            print receivedJSON
+            print(receivedJSON)
             global brightness_percent 
             global brightness
             global previousBrightness
@@ -266,8 +266,8 @@ def runBottle():
             brightness = int(brightness_percent/100*255)
             if brightness > 255:
                 brightness = 255
-            print brightness_percent
-            print brightness
+            print(brightness_percent)
+            print(brightness)
             brightnessSet()
             return {"brightness": brightness}
 
@@ -277,7 +277,7 @@ def runBottle():
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-        print brightness_percent
+        print(brightness_percent)
         return {"brightness": brightness_percent}
 
     @route('/powerState', method=['OPTIONS', 'POST'])
@@ -315,10 +315,10 @@ def runBottle():
         receivedJSON = request.json
         if receivedJSON:
             timerActive = (receivedJSON["active"] == True)
-            print timerActive
+            print(timerActive)
             if "seconds" in receivedJSON:
                 timerSeconds = int(receivedJSON["seconds"])
-                print timerSeconds
+                print(timerSeconds)
             return {
                 "seconds": timerSeconds,
                 "active": timerActive
@@ -341,8 +341,8 @@ def runBottle():
 def brightnessSet():
     global previousBrightness
     global brightness
-    print "change from",previousBrightness,"to",brightness
-    print "mode:", settings["brightnessChangeMode"]
+    print("change from",previousBrightness,"to",brightness)
+    print("mode:", settings["brightnessChangeMode"])
     if settings["brightnessChangeMode"] == "fade":
         duration = float(settings["fadeDuration"])/1000
         if brightness >= previousBrightness:
@@ -375,10 +375,10 @@ def exportData(data,filename):
             print("exported data")
             json.dump(data,file,indent=4)
     except Exception:
-        print "Exception exporting data"
+        print("Exception exporting data")
 
 def clearNewSection(begin, end):
-    print 'clearing section from', begin, 'to', end
+    print('clearing section from', begin, 'to', end)
     for i in range(begin, end+1):
         strip.setPixelColorRGB(i, 0, 0, 0)
     strip.show()
@@ -393,13 +393,13 @@ def staticLedFunction(arguments):
     elif functionName == 'gradientColor':
         fillGradientColorRGB(begin, end, parameters)
     else:
-        print 'function', functionName, 'is not known'
+        print('function', functionName, 'is not known')
 
 def fillColorRGB(begin, end, r, g, b):
-    print 'singleColor', begin, end
+    print('singleColor', begin, end)
     if settings["colorChangeMode"] == "swipe":
         interval = 1.0/int(settings["swipeSpeed"])
-        print interval
+        print(interval)
         start = time.time()
         for i in range(begin, end):
             strip.setPixelColorRGB(i, r, g, b)
@@ -407,13 +407,13 @@ def fillColorRGB(begin, end, r, g, b):
                 strip.show()
             time.sleep(interval)
         end = time.time()
-        print "time elapsed:", end-start
+        print("time elapsed:", end-start)
     elif settings["colorChangeMode"] == "fade":
         prevColors = []
         for i in range(begin, end):
             RGBint = strip.getPixelColor(i)
             prevColors.append([RGBint & 255, (RGBint >> 8) & 255, (RGBint >> 16) & 255])
-        print len(prevColors)
+        print(len(prevColors))
         # transition from prev colors to current colors
     else:
         for i in range(begin, end):
@@ -428,7 +428,7 @@ def fillGradientColorRGB(begin, end, gradient):
     r2 = gradient[1][0]
     g2 = gradient[1][1]
     b2 = gradient[1][2]
-    print begin, end
+    print(begin, end)
     for i in range(end-begin+1):
         target[begin+i] = [
             r1 + (r2-r1) * i / (end-begin+1),
@@ -438,23 +438,23 @@ def fillGradientColorRGB(begin, end, gradient):
 
     if settings["colorChangeMode"] == "swipe":
         interval = 1.0/int(settings["swipeSpeed"])
-        print interval
+        print(interval)
         start = time.time()
         for i in range(end-begin+1):
-            print begin+i, target[begin+i]
+            print(begin+i, target[begin+i])
             strip.setPixelColorRGB(begin+i, *target[begin+i])
             if i%2 == 0:
                 strip.show()
             time.sleep(interval)
         end = time.time()
         strip.show()
-        print "time elapsed:", end-start
+        print("time elapsed:", end-start)
     elif settings["colorChangeMode"] == "fade":
         prevColors = []
         for i in range(end-begin+1):
             RGBint = strip.getPixelColorRGB(begin+i, *target[i])
             prevColors.append([RGBint & 255, (RGBint >> 8) & 255, (RGBint >> 16) & 255])
-        print len(prevColors)
+        print(len(prevColors))
         # transition from prev colors to current colors
     else:
         for i in range(begin, end):
@@ -468,7 +468,7 @@ class dynamicLedFunction(Thread):
         self.functionName = arguments['functionName']
         sections[str(self.sectionId)]['dynamicFunction'] = True
     def run(self):
-        print 'Running thread for', self.sectionId, 'with function', self.functionName
+        print('Running thread for', self.sectionId, 'with function', self.functionName)
         exec(self.functionName+'('+str(self.sectionId)+')')
 
 def flash(sectionId):
@@ -485,9 +485,9 @@ def flash(sectionId):
         uid = sections[str(sectionId)]['uid']
         begin = sections[str(sectionId)]['begin']
         end = sections[str(sectionId)]['end']
-        # print begin, end, uid, dynamicFunction
+        # print(begin, end, uid, dynamicFunction)
         # if uid != initialUid or :
-        #     print 'function not in use'
+        #     print('function not in use')
         #     break
         # else:
         strip.setPixelColor(i, Color(0,0,100))
@@ -549,7 +549,7 @@ class timerBackgroundThread(object):
         while True:
             while timerActive:
                 timerSeconds -= 1
-                print timerSeconds
+                print(timerSeconds)
                 if timerSeconds < 1:
                     timerActive = False
                     savedBrightness = brightness
@@ -565,14 +565,14 @@ if __name__ == "__main__":
             with open('sections.json','r') as file:
                 sections = json.load(file)
         except Exception:
-            print "sections.json not found"
+            print("sections.json not found")
         try:
             with open('settings.json','r') as file:
                 settings = json.load(file)
         except Exception:
-            print "settings.json not found"
+            print("settings.json not found")
         timerThread = timerBackgroundThread()
         runBottle()
     except KeyboardInterrupt:
-        print "exit"
+        print("exit")
         exit()
