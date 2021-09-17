@@ -8,7 +8,7 @@ name="LEDserver"
 #######################
 case "$1" in
         start)
-                tmux new -d -s ${name} "sudo python backend.py"
+                tmux new -d -s ${name} "sudo python3 backend.py"
                 echo "Server wird gestartet"
                 ;;
         console)
